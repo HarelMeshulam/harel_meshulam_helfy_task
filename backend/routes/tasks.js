@@ -1,108 +1,65 @@
 const express = require('express');
 const router = express.Router();
-const { v4: uuidv4 } = require('uuid');
+const { findTaskById, validateTask } = require('../middleware/taskMiddleware');
 
 const tasks = [];
+let idCounter = 1;
 
-const findTaskById = (req, res, next) => {
-  const taskId = req.params.id;
-  const taskIndex = tasks.findIndex(task => task.id === taskId);
-  
-  if (taskIndex === -1) {
-    return res.status(404).json({
-      success: false,
-      message: `Task with ID ${taskId} not found`
-    });
-  }
-  
-  req.taskIndex = taskIndex;
-  req.task = tasks[taskIndex];
-  next();
-};
-
-const validateTask = (req, res, next) => {
-  const { title, description } = req.body;
-  
-  if (!title || title.trim() === '') {
-    return res.status(400).json({
-      success: false,
-      message: 'Title is required'
-    });
-  }
-  
-  next();
-};
+const taskById = findTaskById(tasks);
 
 router.get('/', (req, res) => {
-  res.status(200).json({
-    success: true,
-    data: tasks
-  });
+  res.status(200).json(tasks); 
 });
 
 router.post('/', validateTask, (req, res) => {
-  const { title, description = '' } = req.body;
+  const { title, description = '', priority = 'medium' } = req.body;
   
   const newTask = {
-    id: uuidv4(),
+    id: idCounter++,
     title,
     description,
-    status: 'pending',
-    created_at: new Date().toISOString(),
-    updated_at: new Date().toISOString()
+    completed: false,
+    createdAt: new Date().toISOString(),
+    priority: ['low', 'medium', 'high'].includes(priority) ? priority : 'medium'
   };
   
   tasks.push(newTask);
   
-  res.status(201).json({
-    success: true,
-    data: newTask
-  });
+  res.status(201).json(newTask);
 });
 
-router.put('/:id', findTaskById, validateTask, (req, res) => {
-  const { title, description, status } = req.body;
+router.put('/:id', taskById, validateTask, (req, res) => {
+  const { title, description, completed, priority } = req.body;
   const taskIndex = req.taskIndex;
   
   tasks[taskIndex] = {
     ...tasks[taskIndex],
     title: title || tasks[taskIndex].title,
     description: description !== undefined ? description : tasks[taskIndex].description,
-    status: status || tasks[taskIndex].status,
-    updated_at: new Date().toISOString()
+    completed: completed !== undefined ? completed : tasks[taskIndex].completed,
+    priority: priority && ['low', 'medium', 'high'].includes(priority) ? priority : tasks[taskIndex].priority
   };
   
-  res.status(200).json({
-    success: true,
-    data: tasks[taskIndex]
-  });
+  res.status(200).json(tasks[taskIndex]);
 });
 
-router.delete('/:id', findTaskById, (req, res) => {
+router.delete('/:id', taskById, (req, res) => {
   const taskIndex = req.taskIndex;
   
   const deletedTask = tasks.splice(taskIndex, 1)[0];
   
-  res.status(200).json({
-    success: true,
-    data: deletedTask,
-    message: 'Task deleted successfully'
-  });
+  res.status(200).json(deletedTask);
 });
 
-router.patch('/:id/toggle', findTaskById, (req, res) => {
+router.patch('/:id/toggle', taskById, (req, res) => {
   const taskIndex = req.taskIndex;
   
   tasks[taskIndex] = {
     ...tasks[taskIndex],
-    status: tasks[taskIndex].status === 'pending' ? 'completed' : 'pending',
-    updated_at: new Date().toISOString()
+    completed: !tasks[taskIndex].completed
   };
   
-  res.status(200).json({
-    success: true,
-    data: tasks[taskIndex]
-  });
+  res.status(200).json(tasks[taskIndex]);
 });
 
 module.exports = router;
