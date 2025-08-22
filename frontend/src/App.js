@@ -1,7 +1,8 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import TaskList from './components/TaskList';
 import TaskForm from './components/TaskForm';
 import TaskFilter from './components/TaskFilter';
+import './styles/App.css';
 
 function App() {
   const [tasks, setTasks] = useState([]);
@@ -11,6 +12,7 @@ function App() {
   const [activeFilter, setActiveFilter] = useState('all');
   const [editingTask, setEditingTask] = useState(null);
 
+  // Fetch tasks from API
   useEffect(() => {
     const fetchTasks = async () => {
       try {
@@ -30,6 +32,7 @@ function App() {
     fetchTasks();
   }, []);
 
+  // Filter tasks based on active filter
   useEffect(() => {
     if (activeFilter === 'all') {
       setFilteredTasks(tasks);
@@ -40,6 +43,7 @@ function App() {
     }
   }, [tasks, activeFilter]);
 
+  // Create or update a task
   const handleSubmitTask = async (taskData) => {
     try {
       let response;
@@ -80,6 +84,7 @@ function App() {
     }
   };
 
+  // Toggle task completion status
   const handleToggleComplete = async (taskId) => {
     try {
       const response = await fetch(`http://localhost:4000/api/tasks/${taskId}/toggle`, {
@@ -97,6 +102,7 @@ function App() {
     }
   };
 
+  // Delete a task
   const handleDeleteTask = async (taskId) => {
     if (window.confirm('Are you sure you want to delete this task?')) {
       try {
@@ -115,17 +121,19 @@ function App() {
     }
   };
 
+  // Set a task for editing
   const handleEditTask = (task) => {
     setEditingTask(task);
   };
 
+  // Cancel editing
   const handleCancelEdit = () => {
     setEditingTask(null);
   };
 
-  if (isLoading) return <div>Loading tasks...</div>;
-  if (error) return <div>Error: {error}</div>;
-
+  if (isLoading) return <div className="loading">Loading tasks...</div>;
+  if (error) return <div className="error-message">Error: {error}</div>;
+  
   return (
     <div className="App">
       <h1>Task Manager</h1>
@@ -146,6 +154,7 @@ function App() {
         onToggleComplete={handleToggleComplete}
         onEdit={handleEditTask}
         onDelete={handleDeleteTask}
+        activeFilter={activeFilter}
       />
     </div>
   );

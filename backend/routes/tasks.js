@@ -2,8 +2,33 @@ const express = require('express');
 const router = express.Router();
 const { findTaskById, validateTask } = require('../middleware/taskMiddleware');
 
-const tasks = [];
-let idCounter = 1;
+const tasks = [
+  {
+    id: 1,
+    title: 'Review Harel Meshulam candidate resume',
+    description: 'Applied for Fullstack Junior Engineer position',
+    completed: true,
+    createdAt: new Date().toISOString(),
+    priority: 'high'
+  },
+  {
+    id: 2,
+    title: 'Call candidate for home assignment',
+    description: 'Make sure he got the assignment',
+    completed: true,
+    createdAt: new Date().toISOString(),
+    priority: 'medium'
+  },
+  {
+    id: 3,
+    title: 'Review candidate home assignment',
+    description: 'Test the implementation of the home assignment',
+    completed: false,
+    createdAt: new Date().toISOString(),
+    priority: 'low'
+  }
+];
+let idCounter = 4;
 
 const taskById = findTaskById(tasks);
 

@@ -1,4 +1,5 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
+import '../styles/TaskForm.css';
 
 function TaskForm({ task, onSubmit, onCancel }) {
   const [title, setTitle] = useState('');
@@ -6,7 +7,7 @@ function TaskForm({ task, onSubmit, onCancel }) {
   const [priority, setPriority] = useState('medium');
   
   useEffect(() => {
-    if (task) {
+    if (task) { // If a task is provided for editing
       setTitle(task.title);
       setDescription(task.description || '');
       setPriority(task.priority || 'medium');
@@ -22,16 +23,17 @@ function TaskForm({ task, onSubmit, onCancel }) {
       priority
     });
     
+    // Reset form
     setTitle('');
     setDescription('');
     setPriority('medium');
   };
   
   return (
-    <form onSubmit={handleSubmit}>
+    <form className="task-form" onSubmit={handleSubmit}>
       <h2>{task ? 'Edit Task' : 'Add New Task'}</h2>
       
-      <div>
+      <div className="form-group">
         <label htmlFor="title">Title:</label>
         <input
           id="title"
@@ -42,16 +44,17 @@ function TaskForm({ task, onSubmit, onCancel }) {
         />
       </div>
       
-      <div>
+      <div className="form-group">
         <label htmlFor="description">Description:</label>
         <textarea
           id="description"
           value={description}
           onChange={(e) => setDescription(e.target.value)}
+          rows="3"
         />
       </div>
       
-      <div>
+      <div className="form-group">
         <label htmlFor="priority">Priority:</label>
         <select
           id="priority"
@@ -64,8 +67,20 @@ function TaskForm({ task, onSubmit, onCancel }) {
         </select>
       </div>
       
-      <button type="submit">{task ? 'Update' : 'Add'} Task</button>
-      {onCancel && <button type="button" onClick={onCancel}>Cancel</button>}
+      <div className="form-buttons">
+        <button type="submit" className="submit-btn">
+          {task ? 'Update' : 'Add'} Task
+        </button>
+        {onCancel && (
+          <button 
+            type="button" 
+            className="cancel-btn" 
+            onClick={onCancel}
+          >
+            Cancel
+          </button>
+        )}
+      </div>
     </form>
   );
 }
